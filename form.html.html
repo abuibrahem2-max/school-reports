@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج رصد استراتيجية تدريس</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .form-input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            transition: border-color 0.2s;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        .form-input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #006b5a;
+            box-shadow: 0 0 0 1px #006b5a;
+        }
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: block;
+            color: #374151;
+        }
+        .image-upload-box {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+            color: #6b7280;
+            height: 150px;
+        }
+        .image-upload-box:hover {
+            border-color: #006b5a;
+            background-color: #f9fafb;
+        }
+        .image-upload-box img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="max-w-3xl mx-auto my-8 p-4">
+        <div id="auth-status" class="p-2 mb-4 text-center text-white font-bold bg-yellow-500 rounded-md">جاري الاتصال...</div>
+        
+        <div id="report-form" class="bg-white p-6 rounded-lg shadow-lg">
+            <header class="bg-[#006b5a] text-white p-4 -m-6 mb-6 rounded-t-lg">
+                 <h1 class="text-xl font-bold text-center">نموذج رصد استراتيجيات التدريس</h1>
+            </header>
+            
+            <main class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="teacherName" class="form-label">اسم المعلم المنفذ:</label>
+                        <input type="text" id="teacherName" class="form-input">
+                    </div>
+                    <div>
+                        <label for="principalName" class="form-label">مدير المدرسة:</label>
+                        <input type="text" id="principalName" class="form-input" value="أحمد سالم الشهري">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="strategyName" class="form-label">الاستراتيجية:</label>
+                        <input type="text" id="strategyName" class="form-input" placeholder="مثال: التعلم المبني على حل المشكلات">
+                    </div>
+                    <div>
+                        <label for="subject" class="form-label">المادة:</label>
+                        <input type="text" id="subject" class="form-input" placeholder="مثال: مادة الرياضيات">
+                    </div>
+                    <div>
+                        <label for="executionDate" class="form-label">تاريخ التنفيذ:</label>
+                        <input type="text" id="executionDate" class="form-input" placeholder="مثال: 1447/12/12هـ">
+                    </div>
+                </div>
+                
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="stage" class="form-label">المرحلة الدراسية:</label>
+                        <input type="text" id="stage" class="form-input" placeholder="مثال: الأول متوسط">
+                    </div>
+                    <div>
+                        <label for="classSection" class="form-label">الفصل:</label>
+                        <input type="text" id="classSection" class="form-input" placeholder="مثال: أ + ب">
+                    </div>
+                    <div>
+                        <label for="studentCount" class="form-label">عدد الطلاب:</label>
+                        <input type="number" id="studentCount" class="form-input" placeholder="مثال: 30">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="lesson" class="form-label">الدرس:</label>
+                    <input type="text" id="lesson" class="form-input" placeholder="مثال: المعادلات الخطية">
+                </div>
+                
+                <div>
+                    <label class="form-label">الأدوات والوسائل التعليمية: (اختياري)</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border rounded-md">
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="سبورة تقليدية" class="ml-2">سبورة تقليدية</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="سبورة ذكية" class="ml-2">سبورة ذكية</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="جهاز عرض" class="ml-2">جهاز عرض</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="جهاز الحاسب" class="ml-2">جهاز الحاسب</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="بطاقات تعليمية" class="ml-2">بطاقات تعليمية</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="أوراق عمل" class="ml-2">أوراق عمل</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="صور توضيحية" class="ml-2">صور توضيحية</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="أدوات رياضية" class="ml-2">أدوات رياضية</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="عرض تقديمي" class="ml-2">عرض تقديمي</label>
+                        <label class="flex items-center"><input type="checkbox" name="teachingAids" value="كتاب" class="ml-2">كتاب</label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="objectives" class="form-label">الأهداف: (اكتب كل هدف في سطر)</label>
+                    <textarea id="objectives" rows="4" class="form-input" placeholder="1. الهدف الأول&#10;2. الهدف الثاني&#10;3. الهدف الثالث"></textarea>
+                </div>
+
+                <div>
+                    <label class="form-label">شواهد التنفيذ: (صورتان)</label>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div id="image-upload-box-1" class="image-upload-box">
+                            <img id="image-preview-1" class="hidden" alt="معاينة الصورة ١">
+                            <span id="image-placeholder-1">اضغط لرفع الصورة الأولى</span>
+                            <input type="file" id="image-input-1" class="hidden" accept="image/*">
+                        </div>
+                         <div id="image-upload-box-2" class="image-upload-box">
+                            <img id="image-preview-2" class="hidden" alt="معاينة الصورة ٢">
+                            <span id="image-placeholder-2">اضغط لرفع الصورة الثانية</span>
+                            <input type="file" id="image-input-2" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <footer class="mt-6 pt-6 border-t">
+                <div id="action-buttons" class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                     <button id="saveButton" disabled class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        جاري تهيئة النموذج...
+                    </button>
+                </div>
+                <div id="success-message" class="hidden mt-4 text-center text-white bg-green-600 p-3 rounded-lg">
+                    تم حفظ التقرير بنجاح!
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBMDIL5dPISS4pRimDfN_22NMd1l0QNsCA",
+          authDomain: "reports-e0260.firebaseapp.com",
+          projectId: "reports-e0260",
+          storageBucket: "reports-e0260.firebasestorage.app",
+          messagingSenderId: "879236632191",
+          appId: "1:879236632191:web:da49b42e6af93ea1d6794a"
+        };
+        
+        let app, db, auth;
+        const appId = firebaseConfig.projectId;
+        const authStatus = document.getElementById('auth-status');
+        const saveButton = document.getElementById('saveButton');
+        let editMode = false;
+        let editDocId = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Firebase Initialization Error:", error);
+            authStatus.textContent = 'فشل تهيئة Firebase';
+            authStatus.className = 'p-2 mb-4 text-center text-white font-bold bg-red-700 rounded-md';
+            saveButton.textContent = 'خطأ في التهيئة';
+        }
+
+        // --- التعديل: تم استدعاء تسجيل الدخول مباشرة ---
+        signInAnonymously(auth).catch(err => {
+            console.error("Anonymous sign-in failed:", err);
+            authStatus.textContent = 'فشل الاتصال! تأكد من فتح الصفحة من رابط مستضاف (https) وليس كملف.';
+            authStatus.className = 'p-2 mb-4 text-center text-white font-bold bg-red-700 rounded-md';
+            saveButton.textContent = 'خطأ في المصادقة';
+            saveButton.disabled = true;
+        });
+
+        // سيقوم هذا الكود بالتقاط حالة تسجيل الدخول الناجحة
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // تم الاتصال بنجاح
+                authStatus.textContent = 'تم الاتصال بنجاح';
+                authStatus.className = 'p-2 mb-4 text-center text-white font-bold bg-green-600 rounded-md';
+                saveButton.disabled = false;
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('edit')) {
+                    editDocId = urlParams.get('edit');
+                    editMode = true;
+                    saveButton.textContent = 'تحديث التقرير';
+                    document.title = 'تعديل التقرير';
+                    loadReportForEditing(editDocId);
+                } else {
+                     saveButton.textContent = 'حفظ التقرير';
+                }
+            } 
+            // لا حاجة لـ 'else' لأننا قمنا بمعالجة فشل تسجيل الدخول في الخارج
+        });
+
+        // (بقية الكود تبقى كما هي)
+        
+        function setupImageUpload(boxId, inputId, previewId, placeholderId) {
+            const box = document.getElementById(boxId);
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const placeholder = document.getElementById(placeholderId);
+
+            box.addEventListener('click', () => input.click());
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        setupImageUpload('image-upload-box-1', 'image-input-1', 'image-preview-1', 'image-placeholder-1');
+        setupImageUpload('image-upload-box-2', 'image-input-2', 'image-preview-2', 'image-placeholder-2');
+        
+        async function loadReportForEditing(docId) {
+            try {
+                const reportRef = doc(db, `/artifacts/${appId}/public/data/strategies`, docId);
+                const docSnap = await getDoc(reportRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    document.getElementById('teacherName').value = data.teacherName || '';
+                    document.getElementById('principalName').value = data.principalName || 'أحمد سالم الشهري';
+                    document.getElementById('strategyName').value = data.strategyName || '';
+                    document.getElementById('subject').value = data.subject || '';
+                    document.getElementById('executionDate').value = data.executionDate || '';
+                    document.getElementById('stage').value = data.stage || '';
+                    document.getElementById('classSection').value = data.classSection || '';
+                    document.getElementById('studentCount').value = data.studentCount || '';
+                    document.getElementById('lesson').value = data.lesson || '';
+                    document.getElementById('objectives').value = data.objectives || '';
+                    
+                    if (data.teachingAids) {
+                        data.teachingAids.forEach(aidValue => {
+                            const checkbox = document.querySelector(`input[name="teachingAids"][value="${aidValue}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+
+                     if (data.image1) {
+                        document.getElementById('image-preview-1').src = data.image1;
+                        document.getElementById('image-preview-1').classList.remove('hidden');
+                        document.getElementById('image-placeholder-1').classList.add('hidden');
+                    }
+                     if (data.image2) {
+                        document.getElementById('image-preview-2').src = data.image2;
+                        document.getElementById('image-preview-2').classList.remove('hidden');
+                        document.getElementById('image-placeholder-2').classList.add('hidden');
+                    }
+                    
+                } else {
+                    alert('لم يتم العثور على التقرير المراد تعديله.');
+                }
+            } catch(error) {
+                console.error("Error loading report for edit:", error);
+                alert("حدث خطأ أثناء تحميل بيانات التقرير.");
+            }
+        }
+
+        saveButton.addEventListener('click', async () => {
+            saveButton.disabled = true;
+            saveButton.textContent = 'جاري الحفظ...';
+
+            const getBase64FromInput = async (inputId) => {
+                const input = document.getElementById(inputId);
+                if (input.files && input.files[0]) {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = (error) => {
+                            console.error('FileReader error:', error);
+                            reject(new Error('فشل في قراءة الملف: ' + error.toString()));
+                        };
+                        try {
+                            reader.readAsDataURL(input.files[0]);
+                        } catch (e) {
+                            console.error('readAsDataURL error:', e);
+                            reject(e);
+                        }
+                    });
+                }
+                if(editMode) {
+                    const preview = document.getElementById(inputId.replace('input', 'preview'));
+                    if(preview && preview.src && !preview.src.startsWith('blob:')) {
+                        return preview.src;
+                    }
+                }
+                return null;
+            };
+            
+            const selectedAids = Array.from(document.querySelectorAll('input[name="teachingAids"]:checked')).map(cb => cb.value);
+
+            try {
+                const reportData = {
+                    teacherName: document.getElementById('teacherName').value,
+                    principalName: document.getElementById('principalName').value,
+                    strategyName: document.getElementById('strategyName').value,
+                    subject: document.getElementById('subject').value,
+                    executionDate: document.getElementById('executionDate').value,
+                    stage: document.getElementById('stage').value,
+                    classSection: document.getElementById('classSection').value,
+                    studentCount: document.getElementById('studentCount').value,
+                    lesson: document.getElementById('lesson').value,
+                    teachingAids: selectedAids,
+                    objectives: document.getElementById('objectives').value,
+                    image1: await getBase64FromInput('image-input-1'),
+                    image2: await getBase64FromInput('image-input-2'),
+                };
+
+                if (editMode && editDocId) {
+                     reportData.updatedAt = serverTimestamp();
+                     const reportRef = doc(db, `/artifacts/${appId}/public/data/strategies`, editDocId);
+                     await updateDoc(reportRef, reportData);
+                     alert('تم تحديث التقرير بنجاح!');
+                     window.close();
+                } else {
+                    reportData.createdAt = serverTimestamp();
+                    const docRef = await addDoc(collection(db, `/artifacts/${appId}/public/data/strategies`), reportData);
+                    document.getElementById('success-message').classList.remove('hidden');
+                    saveButton.style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Error saving document: ", error);
+                alert('حدث خطأ أثناء حفظ التقرير: ' + error.message);
+                saveButton.disabled = false;
+                saveButton.textContent = editMode ? 'تحديث التقرير' : 'حفظ التقرير';
+            }
+        });
+    </script>
+
+</body>
+</html>
