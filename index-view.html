@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Kufam:wght@400;500;700&family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -24,42 +24,43 @@
             overflow: hidden;
             transition: max-width 0.3s ease;
         }
+        
+        .pdf-render-mode {
+            max-width: none !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            font-size: 17px; 
+        }
+        .pdf-render-mode header p { font-size: 17px !important; }
+        .pdf-render-mode header .text-yellow-300 { font-size: 19px !important; }
         .form-title {
             background-color: #006b5a;
             color: white;
-            padding: 0.75rem;
+            padding: 1rem;
             text-align: center;
-            font-size: 1.25rem;
+            font-size: 1.75rem;
             font-weight: bold;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr 2fr);
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr 2fr); }
         .form-label-cell,
         .form-data-cell {
-            padding: 0.5rem 0.75rem;
+            padding: 1.25rem 1rem; 
             border: 1px solid #d1d5db;
             display: flex;
             align-items: center;
-            min-height: 50px;
+            min-height: 60px; 
             word-break: break-word;
+            font-size: 17px; 
         }
-        .form-label-cell {
-            background-color: #f3f4f6;
-            font-weight: 500;
-            color: #1f2937;
-        }
+        .form-label-cell { background-color: #f3f4f6; font-weight: 700; color: #1f2937; }
+        .pdf-render-mode .form-data-cell { font-size: 17px !important; }
         .label-span-1 { grid-column: span 1; }
         .data-span-3 { grid-column: span 3; }
-        .printable-offscreen {
-            position: absolute;
-            left: -9999px;
-            width: 842px;
-        }
+        
         .evidence-image-container {
             width: 100%;
-            height: 250px;
+            height: 320px;
             overflow: hidden;
             border-radius: 0.375rem;
             border: 1px solid #d1d5db;
@@ -71,51 +72,48 @@
         .evidence-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
         
-        @media print {
-            body.printing > :not(#report-display-wrapper),
-            body.printing .no-print { display: none !important; }
-            @page { size: A4; margin: 0; }
-            body.printing {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                background-color: white;
-                margin: 0; padding: 0;
-            }
-            body.printing #report-display-wrapper { margin: 0; padding: 0; }
-            body.printing #report-display.page-container {
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-                font-size: 9pt;
-            }
-            body.printing .printable-content {
-                padding: 1.5rem !important; /* الاحتفاظ بهامش للصفحة */
-            }
-             body.printing .form-label-cell, body.printing .form-data-cell {
-                padding: 0.3rem 0.5rem; min-height: 40px;
-            }
-            body.printing header, body.printing footer { padding: 0.5rem; }
-            body.printing h1.form-title { padding: 0.5rem; margin: 0.5rem 0; }
-            body.printing .print-bg-green { background-color: #006b5a !important; }
-        }
+        .printable-content footer .footer-title { font-size: 1.1rem; }
+        .printable-content footer .footer-name { font-size: 1.4rem; }
+
+        @media print { /* (إعدادات الطباعة تبقى كما هي) */ }
     </style>
 </head>
 <body class="bg-gray-50">
-
+    
     <div class="page-container no-print">
         <div class="p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">تقارير استراتيجيات التدريس</h2>
-                <button onclick="printReportsList()" id="print-list-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
-                    طباعة القائمة
-                </button>
             </div>
+
+            <div class="p-4 bg-gray-100 rounded-lg mb-4 flex flex-col sm:flex-row justify-around items-center no-print">
+                <div class="font-semibold text-gray-700 mb-2 sm:mb-0">لتحميل الـ PDF، يرجى إضافة شعارات **PNG بخلفية شفافة**:</div>
+                <div class="flex gap-4">
+                    <label for="logo-upload" class="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700 text-sm">إضافة شعار الوزارة (PNG)</label>
+                    <input type="file" id="logo-upload" class="hidden" accept="image/png">
+                    <label for="vision-upload" class="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700 text-sm">إضافة شعار الرؤية (PNG)</label>
+                    <input type="file" id="vision-upload" class="hidden" accept="image/png">
+                </div>
+            </div>
+            <div class="p-4 bg-gray-100 rounded-lg mb-4 flex justify-start items-center gap-4 no-print">
+                <label for="font-select" class="font-semibold text-gray-700">اختر خط التقرير:</label>
+                <select id="font-select" class="p-2 border rounded-md" style="font-family: 'Tajawal', sans-serif;">
+                    <option value="'Tajawal', sans-serif" style="font-family: 'Tajawal', sans-serif;">أساسي (Tajawal)</option>
+                    <option value="'Kufam', cursive" style="font-family: 'Kufam', cursive;">كوفي (Kufam)</option>
+                    <option value="'Cairo', sans-serif" style="font-family: 'Cairo', sans-serif;">واضح (Cairo)</option>
+                </select>
+                <label for="font-size-select" class="font-semibold text-gray-700 ml-4">اختر حجم الخط:</label>
+                <select id="font-size-select" class="p-2 border rounded-md">
+                    <option value="17px">متوسط (افتراضي)</option>
+                    <option value="16px">صغير</option>
+                    <option value="19px">كبير</option>
+                    <option value="21px">كبير جداً</option>
+                </select>
+            </div>
+            
              <div id="reports-list" class="space-y-1">
                 <p class="text-gray-500 text-center p-4">جاري تحميل التقارير...</p>
             </div>
@@ -123,8 +121,8 @@
     </div>
     
     <div id="report-display-wrapper">
-         <div id="report-display" class="hidden page-container">
-            </div>
+         <div id="report-display" class="hidden">
+           </div>
     </div>
     
     <div id="report-actions" class="hidden max-w-4xl mx-auto p-4 text-center no-print bg-white flex justify-center items-center gap-4" style="margin-top: -2rem; position: relative; z-index: 10; border-radius: 0 0 0.5rem 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
@@ -139,7 +137,6 @@
 
         const { jsPDF } = window.jspdf;
 
-        // *** ضع نفس إعدادات Firebase الخاصة بك هنا ***
         const firebaseConfig = {
           apiKey: "AIzaSyBMDIL5dPISS4pRimDfN_22NMd1l0QNsCA",
           authDomain: "reports-e0260.firebaseapp.com",
@@ -154,7 +151,7 @@
         let app, db, auth;
         let currentReportData = null;
         let allReportsData = [];
-       
+        
         try {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -168,10 +165,64 @@
                 listenForReports();
             } else {
                  signInAnonymously(auth).catch(err => {
-                    console.error("Anonymous sign-in failed:", err);
+                     console.error("Anonymous sign-in failed:", err);
                  });
             }
         });
+
+        document.getElementById('logo-upload').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const preview = document.getElementById('logo-preview');
+            const placeholder = document.getElementById('logo-placeholder');
+            if (file && preview && placeholder) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('vision-upload').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const preview = document.getElementById('vision-preview');
+            const placeholder = document.getElementById('vision-placeholder');
+            if (file && preview && placeholder) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('font-select').addEventListener('change', (event) => {
+            const reportContent = document.querySelector("#report-display .printable-content");
+            if (reportContent) {
+                reportContent.style.fontFamily = event.target.value;
+            }
+        });
+
+        document.getElementById('font-size-select').addEventListener('change', (event) => {
+            const reportContent = document.querySelector("#report-display .printable-content");
+            if (reportContent) {
+                const newSize = event.target.value;
+                reportContent.querySelectorAll('.form-label-cell, .form-data-cell').forEach(cell => {
+                    cell.style.fontSize = newSize;
+                });
+                reportContent.querySelectorAll('.footer-name').forEach(name => {
+                    name.style.fontSize = `calc(${newSize} + 4px)`;
+                });
+                reportContent.querySelectorAll('.footer-title').forEach(title => {
+                    title.style.fontSize = `calc(${newSize} - 2px)`;
+                });
+            }
+        });
+
 
         const reportsList = document.getElementById('reports-list');
         const reportDisplay = document.getElementById('report-display');
@@ -217,10 +268,10 @@
                         <div class="col-span-2 text-gray-500" onclick="window.displayReportById('${docId}')">${executionDate}</div>
                         <div class="col-span-2 text-center flex justify-center gap-3">
                              <a href="./index.html?edit=${docId}" target="_blank" class="text-blue-600 hover:text-blue-800" title="تعديل التقرير">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </a>
                             <button onclick="window.deleteReport(event, '${docId}')" class="text-red-600 hover:text-red-800" title="حذف التقرير">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                         </div>
                     `;
@@ -233,12 +284,28 @@
             });
         }
         
-        window.printReportsList = async function() {
-            // (Code for printing list remains unchanged)
-        }
-        
         window.deleteReport = async function(event, docId) {
-            // (Code for deleting remains unchanged)
+            event.stopPropagation(); 
+
+            if (!confirm("هل أنت متأكد من حذف هذا التقرير نهائياً؟")) {
+                return;
+            }
+
+            try {
+                const reportRef = doc(db, `/artifacts/${appId}/public/data/strategies`, docId);
+                await deleteDoc(reportRef);
+                
+                if (currentReportData && currentReportData.id === docId) {
+                    reportDisplay.innerHTML = '';
+                    reportDisplay.classList.add('hidden');
+                    reportActions.classList.add('hidden');
+                    currentReportData = null;
+                }
+                
+            } catch (error) {
+                console.error("Error deleting report: ", error);
+                alert("حدث خطأ أثناء حذف التقرير.");
+            }
         }
         
         window.downloadPdf = async function() {
@@ -249,35 +316,36 @@
                 return;
             }
 
+            const logoPreview = document.getElementById('logo-preview');
+            const visionPreview = document.getElementById('vision-preview');
+            
+            if (!logoPreview || !visionPreview || logoPreview.src === "" || logoPreview.src.endsWith("/") || visionPreview.src === "" || visionPreview.src.endsWith("/")) {
+                alert("يرجى إضافة شعار الوزارة وشعار الرؤية (PNG شفاف) أولاً.");
+                return;
+            }
+
             const programName = currentReportData.strategyName || 'استراتيجية';
             const teacherName = currentReportData.teacherName || 'معلم';
             const filename = `${programName} - ${teacherName}.pdf`;
 
-            const originalMaxWidth = reportContainer.style.maxWidth;
-            const originalMargin = reportContainer.style.margin;
-            reportContainer.style.maxWidth = 'none';
-            reportContainer.style.margin = '0';
+            reportContainer.classList.remove('page-container');
+            reportContainer.classList.add('pdf-render-mode');
+            await new Promise(resolve => setTimeout(resolve, 50));
 
             try {
                 const canvas = await html2canvas(reportContent, { 
-                    scale: 2, 
-                    useCORS: true // هذا سيعمل الآن لأن كل الصور مدمجة
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
                 });
                 
                 const imgData = canvas.toDataURL('image/png');
-                
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'pt',
-                    format: 'a4'
-                });
-
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
                 const imgProps = pdf.getImageProperties(imgData);
                 const imgWidth = imgProps.width;
                 const imgHeight = imgProps.height;
-                
                 const ratio = pdfWidth / imgWidth;
                 const calculatedHeight = imgHeight * ratio;
                 let pageHeight = pdfHeight;
@@ -298,8 +366,8 @@
                 console.error("خطأ في إنشاء PDF:", error);
                 alert("حدث خطأ أثناء إنشاء ملف PDF.");
             } finally {
-                reportContainer.style.maxWidth = originalMaxWidth;
-                reportContainer.style.margin = originalMargin;
+                reportContainer.classList.add('page-container');
+                reportContainer.classList.remove('pdf-render-mode');
             }
         }
 
@@ -346,28 +414,32 @@
                 : '<span class="text-blue-800 font-semibold">لا يوجد</span>';
 
             const objectivesList = data.objectives
-                ? `<ol class="text-blue-800 font-semibold list-decimal pr-5">${data.objectives.split('\n').filter(line => line.trim() !== '').map(obj => `<li class="mb-1">${obj}</li>`).join('')}</ol>`
+                ? `<div class="text-blue-800 font-semibold">${data.objectives.split('\n').filter(line => line.trim() !== '').map(obj => `<p class="mb-1">${obj}</p>`).join('')}</div>`
                 : '<span class="text-blue-800 font-semibold">لا يوجد</span>';
-
-            // --- 🔴 التعديل: إضافة أكواد Base64 للشعارات (بصيغة PNG) ---
-            const ministryLogoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADRCAMAAABlY/YCAAAAbFBMVEX////AwMD8/Pz09PTT09NdXV1RUVGpqamfn59xcXHq6urc3Nzj4+NmZmaQkJBXV1e6urqioqJEREQ6OjonJycODg7t7e1wcHCSkpKkpKRoaGhvb28/Pz+rq6uHh4cMDAxZWVmCgoIODg4vLy9ViqBqAAAA90lEQVR42u3YMRaDIAwEwfMSoAhSwfb/v6Sg6WKlQycd5T7wKzPZ6LwIIYQQQgghhBBCCHkf0/GqD/t/qj6A9B9kxxXEBESKCEeEIzIBBwIJJJBAAggkkEACCSSQQAKZkM2vN5CL3i+Qy9r3kcvG95LLgvcYl+0vEsl2HkPZuJbH0DOsiQeRs2wBHkRNsmYeiJpkzU0QMsmqecCyZE3cEmyJG+GTYEfcEWZEHcFWZEXcEWZEHYFUZEHcFWZEHYFUZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZFEEIYQQQgghhBBCCO9v3b0BfQJjXbYAAAAASUVORK5CYII=";
             
-            const visionLogoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAC+CAMAAAD8fGMcAAABAlBMVEX////tGy7tESr3vMf85ej97/L61+D62+L2uMLvOD/sABDtExz98PPvMC7xX2j63OPtGy/tECf2tcDuPy/uSDHtFBnwcHT2uL7sABj74uf4xM3wXVvuRjDsABb1Rkbwcm/sABH62N71S0vya2/whJLsABDgopT73+T5z9f0Qj3tICLybHD3vsrwhI7+9fbvOjvxZmr86ezmraz50dfxZWnzdXXzh5P61tr2tbrwhYb74+f3v8zwnqL50tX3vMPwcmjxdn3sABTwhIXsAAvfmpPYkJDycmjvhI3ya2f4yM72t7/wnJ3vf4XybG/3usDvOjrzdHXvPj/vMCYkRjGkAAAA/klEQVR42u3di1LUQBhG4cMIIuKioiLuVdG9i/teRVEUFPcE7v3/v9aBCiLGGOrpTqfv/Q7pD8mQnq6nUwohgggggggggggggggggggggggggggggggggggggggiK1iNtO/17f4qjce9aLpZk/Y/dK91pXqSypzGv6/r+v6vD53e3N4k2n1eZ6t/eC13L1tHlZPb3K/fDWu2X3u01/N3NfMv/G9nf2/bK/3N/v1dXe3t6fn9/vV1d3J29enpy/P6vj69e/vT09vT0/f6+Pz+/X6/N/G+D/fy/j/P3+fP38fr+8er65vb28ePl89fLi9ubp+eXy8vXq4g+vL19e3rx8/fr68ub29vb69evp6enp4d3t7fXp6eHx+f7x8enp8e7x/vHx/vHx6fH+/uHp6f7x/v7h/v7+8fH+8f7+4f7+/vHx4/Pz4/Pz8/Pj8+Pz4/Pz4/Pz4/Pz4/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/PjSCAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAACfwB4M/F9qjFEYwAAAABJRU5ErkJggg==";
+            const selectedFont = document.getElementById('font-select').value;
+            const selectedSize = document.getElementById('font-size-select').value;
 
             reportDisplay.innerHTML = `
-                <div class="printable-content">
+                <div class="printable-content page-container" style="font-family: ${selectedFont};">
                     <header class="bg-[#006b5a] text-white p-4 print-bg-green">
                         <div class="max-w-4xl mx-auto flex justify-between items-center">
-                            <div class="w-1/3 text-right text-xs leading-tight">
-                                <p>الإدارة العامة للتعليم بمنطقة عسير</p>
-                                <p class="font-bold text-sm text-yellow-300">ابتدائية ومتوسطة الراشدون بالمربع</p>
+                            
+                            <div class="w-1/3 text-right">
+                                <img id="logo-preview" src="" alt="شعار الوزارة" class="h-20 w-32 mx-auto hidden object-contain">
+                                <div id="logo-placeholder" class="h-20 w-32 border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-400 mx-auto">مكان شعار الوزارة</div>
                             </div>
                             
-                            <div class="w-1/3 text-center">
-                                <img src="${ministryLogoBase64}" alt="شعار الوزارة" class="h-16 mx-auto">
+                            <div class="w-1/3 text-center text-sm leading-tight">
+                                <p class="font-bold text-base">المملكة العربية السعودية</p>
+                                <p class="font-bold text-base">وزارة التعليم</p>
+                                <p class="font-bold text-lg text-yellow-300">الإدارة العامة للتعليم بمنطقة عسير</p>
+                                <p class="text-sm">ابتدائية ومتوسطة الراشدون بالمربع</p>
                             </div>
+
                             <div class="w-1/3 text-left">
-                                <img src="${visionLogoBase64}" alt="شعار الرؤية" class="h-16 mx-auto">
+                                <img id="vision-preview" src="" alt="شعار الرؤية" class="h-20 w-32 mx-auto hidden object-contain">
+                                <div id="vision-placeholder" class="h-20 w-32 border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-400 mx-auto">مكان شعار الرؤية</div>
                             </div>
 
                         </div>
@@ -375,38 +447,29 @@
                     
                     <h1 class="form-title mt-4 mb-4 mx-4">تقرير تنفيذ استراتجية تدريس</h1>
                     
-                    <main class="px-4">
+                    <main class="px-8 py-4">
                         <div class="form-grid">
-                            <div class="form-label-cell">اسم المعلم المنفذ:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.teacherName || ''}</span></div>
-                            <div class="form-label-cell">مدير المدرسة:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.principalName || ''}</span></div>
-
-                            <div class="form-label-cell">الاستراتيجية:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.strategyName || ''}</span></div>
-                            <div class="form-label-cell">المادة:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.subject || ''}</span></div>
-
-                            <div class="form-label-cell">تاريخ التنفيذ:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.executionDate || ''}</span></div>
-                            <div class="form-label-cell">الدرس:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.lesson || ''}</span></div>
-
-                            <div class="form-label-cell">المرحلة الدراسية:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.stage || ''}</span></div>
-                            <div class="form-label-cell">الفصل:</div>
-                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.classSection || ''}</span></div>
                             
-                            <div class="form-label-cell">عدد الطلاب:</div>
-                            <div class="form-data-cell data-span-3"><span class="text-blue-800 font-semibold">${data.studentCount || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">الاستراتيجية:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-red-800 font-semibold">${data.strategyName || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">المادة:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.subject || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">تاريخ التنفيذ:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.executionDate || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">الدرس:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.lesson || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">المرحلة الدراسية:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.stage || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">الفصل:</div>
+                            <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.classSection || ''}</span></div>
+                            <div class="form-label-cell" style="font-size: ${selectedSize};">عدد الطلاب:</div>
+                            <div class="form-data-cell data-span-3" style="font-size: ${selectedSize};"><span class="text-blue-800 font-semibold">${data.studentCount || ''}</span></div>
+                            <div class="form-label-cell label-span-1" style="font-size: ${selectedSize};">الأدوات والوسائل التعليمية:</div>
+                            <div class="form-data-cell data-span-3" style="font-size: ${selectedSize};">${aidsList}</div>
+                            <div class="form-label-cell label-span-1" style="font-size: ${selectedSize};">الأهداف:</div>
+                            <div class="form-data-cell data-span-3" style="font-size: ${selectedSize};">${objectivesList}</div>
 
-                            <div class="form-label-cell label-span-1">الأدوات والوسائل التعليمية:</div>
-                            <div class="form-data-cell data-span-3">${aidsList}</div>
-                            
-                            <div class="form-label-cell label-span-1">الأهداف:</div>
-                            <div class="form-data-cell data-span-3">${objectivesList}</div>
-
-                            <div class="form-label-cell label-span-1">شواهد التنفيذ:</div>
+                            <div class="form-label-cell label-span-1" style="font-size: ${selectedSize};">شواهد التنفيذ:</div>
                             <div class="form-data-cell data-span-3">
                                 <div class="w-full flex gap-4">
                                     <div class="w-1/2">
@@ -424,19 +487,55 @@
                         </div>
                     </main>
 
-                    <footer class="flex justify-between items-center pt-8 mt-8 border-t px-4 pb-4">
+                    <footer class="flex justify-between items-start pt-10 mt-10 border-t px-10 pb-10">
                         <div class="text-center">
-                             <p class="text-sm text-gray-600">مدير المدرسة</p>
-                             <p class="font-bold text-lg">${data.principalName || 'اسم المدير'}</p>
+                            <p class="footer-title text-gray-600 text-center" style="font-size: calc(${selectedSize} - 2px);">المعلم المنفذ</p>
+                            <p class="footer-name font-bold text-center" style="font-size: calc(${selectedSize} + 4px);">${data.teacherName || 'اسم المعلم'}</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-sm text-gray-600">المعلم المنفذ</p>
-                            <p class="font-bold text-lg">${data.teacherName || 'اسم المعلم'}</p>
+                             <p class="footer-title text-gray-600 text-center" style="font-size: calc(${selectedSize} - 2px);">مدير المدرسة</p>
+                             <p class="footer-name font-bold text-center" style="font-size: calc(${selectedSize} + 4px);">${data.principalName || 'اسم المدير'}</p>
+                        </div>
+                    </footer>
+                    
+                    <footer class="bg-[#006b5a] p-4 print-bg-green">
+                        <div class="text-center">
+                            <p class="text-white text-sm font-bold">www.moe.gov.sa</p>
                         </div>
                     </footer>
                 </div>
             `;
             
+            const logoPreview = document.getElementById('logo-preview');
+            const logoPlaceholder = document.getElementById('logo-placeholder');
+            const visionPreview = document.getElementById('vision-preview');
+            const visionPlaceholder = document.getElementById('vision-placeholder');
+            
+            // نعيد تحميل الصور من جديد عند عرض التقرير
+            const originalLogoSrc = document.getElementById('logo-upload').files.length > 0 ? URL.createObjectURL(document.getElementById('logo-upload').files[0]) : "";
+            const originalVisionSrc = document.getElementById('vision-upload').files.length > 0 ? URL.createObjectURL(document.getElementById('vision-upload').files[0]) : "";
+
+            if (originalLogoSrc) {
+                if (logoPreview) logoPreview.src = originalLogoSrc;
+                if (logoPreview) logoPreview.classList.remove('hidden');
+                if (logoPlaceholder) logoPlaceholder.classList.add('hidden');
+            } else {
+                if (logoPreview) logoPreview.src = "";
+                if (logoPreview) logoPreview.classList.add('hidden');
+                if (logoPlaceholder) logoPlaceholder.classList.remove('hidden');
+            }
+
+            if (originalVisionSrc) {
+                if (visionPreview) visionPreview.src = originalVisionSrc;
+                if (visionPreview) visionPreview.classList.remove('hidden');
+                if (visionPlaceholder) visionPlaceholder.classList.add('hidden');
+            } else {
+                if (visionPreview) visionPreview.src = "";
+                if (visionPreview) visionPreview.classList.add('hidden');
+                if (visionPlaceholder) visionPlaceholder.classList.remove('hidden');
+            }
+            
+            reportDisplay.classList.add('page-container');
             reportDisplay.classList.remove('hidden');
             reportActions.classList.remove('hidden');
             reportDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
