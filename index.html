@@ -127,6 +127,11 @@
                         <label class="flex items-center"><input type="checkbox" name="teachingAids" value="أدوات رياضية" class="ml-2">أدوات رياضية</label>
                         <label class="flex items-center"><input type="checkbox" name="teachingAids" value="عرض تقديمي" class="ml-2">عرض تقديمي</label>
                         <label class="flex items-center"><input type="checkbox" name="teachingAids" value="كتاب" class="ml-2">كتاب</label>
+                        
+                        <label class="flex items-center md:col-span-3">
+                            <input type="checkbox" name="teachingAids" value="أخرى" class="ml-2">أخرى:
+                            <input type="text" id="teachingAidsOther" class="form-input ml-2 flex-1" placeholder="أدخل أداة أخرى...">
+                        </label>
                     </div>
                 </div>
                 
@@ -197,7 +202,6 @@
             saveButton.textContent = 'خطأ في التهيئة';
         }
 
-        // --- التعديل: تم استدعاء تسجيل الدخول مباشرة ---
         signInAnonymously(auth).catch(err => {
             console.error("Anonymous sign-in failed:", err);
             authStatus.textContent = 'فشل الاتصال! تأكد من فتح الصفحة من رابط مستضاف (https) وليس كملف.';
@@ -206,10 +210,8 @@
             saveButton.disabled = true;
         });
 
-        // سيقوم هذا الكود بالتقاط حالة تسجيل الدخول الناجحة
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // تم الاتصال بنجاح
                 authStatus.textContent = 'تم الاتصال بنجاح';
                 authStatus.className = 'p-2 mb-4 text-center text-white font-bold bg-green-600 rounded-md';
                 saveButton.disabled = false;
@@ -225,11 +227,8 @@
                      saveButton.textContent = 'حفظ التقرير';
                 }
             } 
-            // لا حاجة لـ 'else' لأننا قمنا بمعالجة فشل تسجيل الدخول في الخارج
         });
 
-        // (بقية الكود تبقى كما هي)
-        
         function setupImageUpload(boxId, inputId, previewId, placeholderId) {
             const box = document.getElementById(boxId);
             const input = document.getElementById(inputId);
@@ -270,6 +269,9 @@
                     document.getElementById('studentCount').value = data.studentCount || '';
                     document.getElementById('lesson').value = data.lesson || '';
                     document.getElementById('objectives').value = data.objectives || '';
+                    
+                    // 🔴 التعديل: تحميل بيانات "أخرى"
+                    document.getElementById('teachingAidsOther').value = data.teachingAidsOther || '';
                     
                     if (data.teachingAids) {
                         data.teachingAids.forEach(aidValue => {
@@ -343,6 +345,8 @@
                     studentCount: document.getElementById('studentCount').value,
                     lesson: document.getElementById('lesson').value,
                     teachingAids: selectedAids,
+                    // 🔴 التعديل: حفظ بيانات "أخرى"
+                    teachingAidsOther: document.getElementById('teachingAidsOther').value,
                     objectives: document.getElementById('objectives').value,
                     image1: await getBase64FromInput('image-input-1'),
                     image2: await getBase64FromInput('image-input-2'),
