@@ -85,8 +85,6 @@
                 margin: 0; padding: 0;
             }
             body.printing #report-display-wrapper { margin: 0; padding: 0; }
-            
-            /* 🔴 التعديل: إزالة الحدود والهوامش عند الطباعة */
             body.printing #report-display.page-container {
                 max-width: none !important;
                 margin: 0 !important;
@@ -141,6 +139,7 @@
 
         const { jsPDF } = window.jspdf;
 
+        // *** ضع نفس إعدادات Firebase الخاصة بك هنا ***
         const firebaseConfig = {
           apiKey: "AIzaSyBMDIL5dPISS4pRimDfN_22NMd1l0QNsCA",
           authDomain: "reports-e0260.firebaseapp.com",
@@ -254,17 +253,15 @@
             const teacherName = currentReportData.teacherName || 'معلم';
             const filename = `${programName} - ${teacherName}.pdf`;
 
-            // 🔴 التعديل: إزالة تحديد العرض قبل التصوير ليملأ الصفحة
             const originalMaxWidth = reportContainer.style.maxWidth;
             const originalMargin = reportContainer.style.margin;
             reportContainer.style.maxWidth = 'none';
             reportContainer.style.margin = '0';
 
             try {
-                // 🔴 التعديل: إزالة allowTaint
                 const canvas = await html2canvas(reportContent, { 
                     scale: 2, 
-                    useCORS: true // هذا سيعمل الآن لأن الصور Base64
+                    useCORS: true // هذا سيعمل الآن لأن كل الصور مدمجة
                 });
                 
                 const imgData = canvas.toDataURL('image/png');
@@ -301,7 +298,6 @@
                 console.error("خطأ في إنشاء PDF:", error);
                 alert("حدث خطأ أثناء إنشاء ملف PDF.");
             } finally {
-                // 🔴 التعديل: إعادة العرض الأصلي بعد التصوير
                 reportContainer.style.maxWidth = originalMaxWidth;
                 reportContainer.style.margin = originalMargin;
             }
@@ -329,7 +325,6 @@
 
         function displayReportData(data) {
             
-            // 🔴 التعديل: منطق جديد لعرض "أخرى"
             let aidsItems = data.teachingAids && data.teachingAids.length > 0
                 ? data.teachingAids.map(aid => {
                     if (aid === "أخرى" && (!data.teachingAidsOther || data.teachingAidsOther.trim() === "")) {
@@ -354,104 +349,98 @@
                 ? `<ol class="text-blue-800 font-semibold list-decimal pr-5">${data.objectives.split('\n').filter(line => line.trim() !== '').map(obj => `<li class="mb-1">${obj}</li>`).join('')}</ol>`
                 : '<span class="text-blue-800 font-semibold">لا يوجد</span>';
 
-            // --- 🔴 التعديل: إضافة أكواد Base64 للشعارات ---
-            // (هذه أكواد لشعار الوزارة والرؤية بصيغة PNG)
-            const ministryLogoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADRCAMAAABlY/YCAAAAbFBMVEX////AwMD8/Pz09PTT09NdXV1RUVGpqamfn59xcXHq6urc3Nzj4+NmZmaQkJBXV1e6urqioqJEREQ6OjonJycODg7t7e1wcHCSkpKkpKRoaGhvb28/Pz+rq6uHh4cMDAxZWVmCgoIODg4vLy9ViqBqAAAA90lEQVR42u3YMRaDIAwEwfMSoAhSwfb/v6Sg6WKlQycd5T7wKzPZ6LwIIYQQQgghhBBCCHkf0/GqD/t/qj6A9B9kxxXEBESKCEeEIzIBBwIJJJBAAggkkEACCSSQQAKZkM2vN5CL3i+Qy9r3kcvG95LLgvcYl+0vEsl2HkPZuJbH0DOsiQeRs2wBHkRNsmYeiJpkzU0QMsmqecCyZE3cEmyJG+GTYEfcEWZEHcFWZEXcEWZEHYFUZEHcFWZEHYFUZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZFEEIYQQQgghhBBCCO9v3b0BfQJjXbYAAAAASUVORK5CYII=";
+            // --- 🔴 التعديل: إضافة أكواد Base64 للشعارات (بصيغة PNG) ---
+            const ministryLogoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADRCAMAAABlY/YCAAAAbFBMVEX////AwMD8/Pz09PTT09NdXV1RUVGpqamfn59xcXHq6urc3Nzj4+NmZmaQkJBXV1e6urqioqJEREQ6OjonJycODg7t7e1wcHCSkpKkpKRoaGhvb28/Pz+rq6uHh4cMDAxZWVmCgoIODg4vLy9ViqBqAAAA90lEQVR42u3YMRaDIAwEwfMSoAhSwfb/v6Sg6WKlQycd5T7wKzPZ6LwIIYQQQgghhBBCCHkf0/GqD/t/qj6A9B9kxxXEBESKCEeEIzIBBwIJJJBAAggkkEACCSSQQAKZkM2vN5CL3i+Qy9r3kcvG95LLgvcYl+0vEsl2HkPZuJbH0DOsiQeRs2wBHkRNsmYeiJpkzU0QMsmqecCyZE3cEmyJG+GTYEfcEWZEHcFWZEXcEWZEHYFUZEHcFWZEHYFUZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZEHcFWZEPYEkZFEEIYQQQgghhBBCCO9v3b0BfQJjXbYAAAAASUVORK5CYII=";
             
-            // هذا هو الكود الذي أرسلته أنت لشعار الرؤية
-            const visionLogoBase64 = "data:image/jpeg;base64,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.
-```json
-[
-  {"text": "this is the first example text"},
-  {"text": "this is the second example text"}
-]
-reportDisplay.innerHTML = `
-            <div class="printable-content">
-                <header class="bg-[#006b5a] text-white p-4 print-bg-green">
-                    <div class="max-w-4xl mx-auto flex justify-between items-center">
-                        <div class="w-1/3 text-right text-xs leading-tight">
-                            <p>الإدارة العامة للتعليم بمنطقة عسير</p>
-                            <p class="font-bold text-sm text-yellow-300">ابتدائية ومتوسطة الراشدون بالمربع</p>
+            const visionLogoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAC+CAMAAAD8fGMcAAABAlBMVEX////tGy7tESr3vMf85ej97/L61+D62+L2uMLvOD/sABDtExz98PPvMC7xX2j63OPtGy/tECf2tcDuPy/uSDHtFBnwcHT2uL7sABj74uf4xM3wXVvuRjDsABb1Rkbwcm/sABH62N71S0vya2/whJLsABDgopT73+T5z9f0Qj3tICLybHD3vsrwhI7+9fbvOjvxZmr86ezmraz50dfxZWnzdXXzh5P61tr2tbrwhYb74+f3v8zwnqL50tX3vMPwcmjxdn3sABTwhIXsAAvfmpPYkJDycmjvhI3ya2f4yM72t7/wnJ3vf4XybG/3usDvOjrzdHXvPj/vMCYkRjGkAAAA/klEQVR42u3di1LUQBhG4cMIIuKioiLuVdG9i/teRVEUFPcE7v3/v9aBCiLGGOrpTqfv/Q7pD8mQnq6nUwohgggggggggggggggggggggggggggggggggggggggiK1iNtO/17f4qjce9aLpZk/Y/dK91pXqSypzGv6/r+v6vD53e3N4k2n1eZ6t/eC13L1tHlZPb3K/fDWu2X3u01/N3NfMv/G9nf2/bK/3N/v1dXe3t6fn9/vV1d3J29enpy/P6vj69e/vT09vT0/f6+Pz+/X6/N/G+D/fy/j/P3+fP38fr+8er65vb28ePl89fLi9ubp+eXy8vXq4g+vL19e3rx8/fr68ub29vb69evp6enp4d3t7fXp6eHx+f7x8enp8e7x/vHx/vHx6fH+/uHp6f7x/v7h/v7+8fH+8f7+4f7+/vHx4/Pz4/Pz8/Pj8+Pz4/Pz4/Pz4/Pz4/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/Pj8/PjSCAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAAEEAgABBAAACfwB4M/F9qjFEYwAAAABJRU5ErkJggg==";
+
+            reportDisplay.innerHTML = `
+                <div class="printable-content">
+                    <header class="bg-[#006b5a] text-white p-4 print-bg-green">
+                        <div class="max-w-4xl mx-auto flex justify-between items-center">
+                            <div class="w-1/3 text-right text-xs leading-tight">
+                                <p>الإدارة العامة للتعليم بمنطقة عسير</p>
+                                <p class="font-bold text-sm text-yellow-300">ابتدائية ومتوسطة الراشدون بالمربع</p>
+                            </div>
+                            
+                            <div class="w-1/3 text-center">
+                                <img src="${ministryLogoBase64}" alt="شعار الوزارة" class="h-16 mx-auto">
+                            </div>
+                            <div class="w-1/3 text-left">
+                                <img src="${visionLogoBase64}" alt="شعار الرؤية" class="h-16 mx-auto">
+                            </div>
+
                         </div>
-                        
-                        <div class="w-1/3 text-center">
-                            <img src="${ministryLogoBase64}" alt="شعار الوزارة" class="h-16 mx-auto">
-                        </div>
-                        <div class="w-1/3 text-left">
-                            <img src="${visionLogoBase64}" alt="شعار الرؤية" class="h-16 mx-auto">
-                        </div>
+                    </header>
+                    
+                    <h1 class="form-title mt-4 mb-4 mx-4">تقرير تنفيذ استراتجية تدريس</h1>
+                    
+                    <main class="px-4">
+                        <div class="form-grid">
+                            <div class="form-label-cell">اسم المعلم المنفذ:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.teacherName || ''}</span></div>
+                            <div class="form-label-cell">مدير المدرسة:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.principalName || ''}</span></div>
 
-                    </div>
-                </header>
-                
-                <h1 class="form-title mt-4 mb-4 mx-4">تقرير تنفيذ استراتجية تدريس</h1>
-                
-                <main class="px-4">
-                    <div class="form-grid">
-                        <div class="form-label-cell">اسم المعلم المنفذ:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.teacherName || ''}</span></div>
-                        <div class="form-label-cell">مدير المدرسة:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.principalName || ''}</span></div>
+                            <div class="form-label-cell">الاستراتيجية:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.strategyName || ''}</span></div>
+                            <div class="form-label-cell">المادة:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.subject || ''}</span></div>
 
-                        <div class="form-label-cell">الاستراتيجية:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.strategyName || ''}</span></div>
-                        <div class="form-label-cell">المادة:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.subject || ''}</span></div>
+                            <div class="form-label-cell">تاريخ التنفيذ:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.executionDate || ''}</span></div>
+                            <div class="form-label-cell">الدرس:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.lesson || ''}</span></div>
 
-                        <div class="form-label-cell">تاريخ التنفيذ:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.executionDate || ''}</span></div>
-                        <div class="form-label-cell">الدرس:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.lesson || ''}</span></div>
+                            <div class="form-label-cell">المرحلة الدراسية:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.stage || ''}</span></div>
+                            <div class="form-label-cell">الفصل:</div>
+                            <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.classSection || ''}</span></div>
+                            
+                            <div class="form-label-cell">عدد الطلاب:</div>
+                            <div class="form-data-cell data-span-3"><span class="text-blue-800 font-semibold">${data.studentCount || ''}</span></div>
 
-                        <div class="form-label-cell">المرحلة الدراسية:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.stage || ''}</span></div>
-                        <div class="form-label-cell">الفصل:</div>
-                        <div class="form-data-cell"><span class="text-blue-800 font-semibold">${data.classSection || ''}</span></div>
-                        
-                        <div class="form-label-cell">عدد الطلاب:</div>
-                        <div class="form-data-cell data-span-3"><span class="text-blue-800 font-semibold">${data.studentCount || ''}</span></div>
+                            <div class="form-label-cell label-span-1">الأدوات والوسائل التعليمية:</div>
+                            <div class="form-data-cell data-span-3">${aidsList}</div>
+                            
+                            <div class="form-label-cell label-span-1">الأهداف:</div>
+                            <div class="form-data-cell data-span-3">${objectivesList}</div>
 
-                        <div class="form-label-cell label-span-1">الأدوات والوسائل التعليمية:</div>
-                        <div class="form-data-cell data-span-3">${aidsList}</div>
-                        
-                        <div class="form-label-cell label-span-1">الأهداف:</div>
-                        <div class="form-data-cell data-span-3">${objectivesList}</div>
-
-                        <div class="form-label-cell label-span-1">شواهد التنفيذ:</div>
-                        <div class="form-data-cell data-span-3">
-                            <div class="w-full flex gap-4">
-                                <div class="w-1/2">
-                                    <div class="evidence-image-container">
-                                        ${data.image1 ? `<img src="${data.image1}" class="evidence-image" crossorigin="anonymous">` : '<span class="text-gray-500">لم يتم رفع صورة 1</span>'}
+                            <div class="form-label-cell label-span-1">شواهد التنفيذ:</div>
+                            <div class="form-data-cell data-span-3">
+                                <div class="w-full flex gap-4">
+                                    <div class="w-1/2">
+                                        <div class="evidence-image-container">
+                                            ${data.image1 ? `<img src="${data.image1}" class="evidence-image" crossorigin="anonymous">` : '<span class="text-gray-500">لم يتم رفع صورة 1</span>'}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="w-1/2">
-                                    <div class="evidence-image-container">
-                                        ${data.image2 ? `<img src="${data.image2}" class="evidence-image" crossorigin="anonymous">` : '<span class="text-gray-500">لم يتم رفع صورة 2</span>'}
+                                    <div class="w-1/2">
+                                        <div class="evidence-image-container">
+                                            ${data.image2 ? `<img src="${data.image2}" class="evidence-image" crossorigin="anonymous">` : '<span class="text-gray-500">لم يتم رفع صورة 2</span>'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </main>
+                    </main>
 
-                <footer class="flex justify-between items-center pt-8 mt-8 border-t px-4 pb-4">
-                    <div class="text-center">
-                         <p class="text-sm text-gray-600">مدير المدرسة</p>
-                         <p class="font-bold text-lg">${data.principalName || 'اسم المدير'}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-sm text-gray-600">المعلم المنفذ</p>
-                        <p class="font-bold text-lg">${data.teacherName || 'اسم المعلم'}</p>
-                    </div>
-                </footer>
-            </div>
-        `;
-        
-        reportDisplay.classList.remove('hidden');
-        reportActions.classList.remove('hidden');
-        reportDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-</script>
+                    <footer class="flex justify-between items-center pt-8 mt-8 border-t px-4 pb-4">
+                        <div class="text-center">
+                             <p class="text-sm text-gray-600">مدير المدرسة</p>
+                             <p class="font-bold text-lg">${data.principalName || 'اسم المدير'}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600">المعلم المنفذ</p>
+                            <p class="font-bold text-lg">${data.teacherName || 'اسم المعلم'}</p>
+                        </div>
+                    </footer>
+                </div>
+            `;
+            
+            reportDisplay.classList.remove('hidden');
+            reportActions.classList.remove('hidden');
+            reportDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
 </body>
 </html>
