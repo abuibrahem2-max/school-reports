@@ -45,6 +45,7 @@
             text-align: center;
             color: #6b7280;
             height: 150px;
+            position: relative; 
         }
         .image-upload-box:hover {
             border-color: #006b5a;
@@ -54,6 +55,22 @@
             max-height: 100%;
             max-width: 100%;
             object-fit: contain;
+            position: relative; 
+            z-index: 1; 
+        }
+        .image-upload-box span {
+            position: relative;
+            z-index: 1;
+        }
+        .image-upload-box input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; 
+            cursor: pointer;
+            z-index: 10; 
         }
     </style>
 </head>
@@ -68,6 +85,7 @@
             </header>
             
             <main class="space-y-4">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="teacherName" class="form-label">اسم المعلم المنفذ:</label>
@@ -146,12 +164,12 @@
                         <div id="image-upload-box-1" class="image-upload-box">
                             <img id="image-preview-1" class="hidden" alt="معاينة الصورة ١">
                             <span id="image-placeholder-1">اضغط لرفع الصورة الأولى</span>
-                            <input type="file" id="image-input-1" class="hidden" accept="image/*">
+                            <input type="file" id="image-input-1" accept="image/*">
                         </div>
                          <div id="image-upload-box-2" class="image-upload-box">
                             <img id="image-preview-2" class="hidden" alt="معاينة الصورة ٢">
                             <span id="image-placeholder-2">اضغط لرفع الصورة الثانية</span>
-                            <input type="file" id="image-input-2" class="hidden" accept="image/*">
+                            <input type="file" id="image-input-2" accept="image/*">
                         </div>
                     </div>
                 </div>
@@ -174,17 +192,21 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // ⬇️ 1. التعديل الأول: استيراد مكتبة "Storage" ⬇️
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
+        // (كود Firebase Config الخاص بك كما هو)
         const firebaseConfig = {
           apiKey: "AIzaSyBMDIL5dPISS4pRimDfN_22NMd1l0QNsCA",
           authDomain: "reports-e0260.firebaseapp.com",
           projectId: "reports-e0260",
-          storageBucket: "reports-e0260.firebasestorage.app",
+          storageBucket: "reports-e0260.firebasestorage.app", // تأكد أن هذا السطر موجود
           messagingSenderId: "879236632191",
           appId: "1:879236632191:web:da49b42e6af93ea1d6794a"
         };
         
-        let app, db, auth;
+        let app, db, auth, storage; // <-- 2. التعديل الثاني: إضافة متغير "storage"
         const appId = firebaseConfig.projectId;
         const authStatus = document.getElementById('auth-status');
         const saveButton = document.getElementById('saveButton');
@@ -195,6 +217,7 @@
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            storage = getStorage(app); // <-- 3. التعديل الثالث: تهيئة "Storage"
         } catch (error) {
             console.error("Firebase Initialization Error:", error);
             authStatus.textContent = 'فشل تهيئة Firebase';
@@ -202,6 +225,7 @@
             saveButton.textContent = 'خطأ في التهيئة';
         }
 
+        // (كود المصادقة والتحقق من المستخدم كما هو)
         signInAnonymously(auth).catch(err => {
             console.error("Anonymous sign-in failed:", err);
             authStatus.textContent = 'فشل الاتصال! تأكد من فتح الصفحة من رابط مستضاف (https) وليس كملف.';
@@ -229,13 +253,12 @@
             } 
         });
 
+        // (كود setupImageUpload كما هو)
         function setupImageUpload(boxId, inputId, previewId, placeholderId) {
-            const box = document.getElementById(boxId);
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
             const placeholder = document.getElementById(placeholderId);
 
-            box.addEventListener('click', () => input.click());
             input.addEventListener('change', () => {
                 const file = input.files[0];
                 if (file) {
@@ -252,6 +275,7 @@
         setupImageUpload('image-upload-box-1', 'image-input-1', 'image-preview-1', 'image-placeholder-1');
         setupImageUpload('image-upload-box-2', 'image-input-2', 'image-preview-2', 'image-placeholder-2');
         
+        // (كود loadReportForEditing كما هو - سيعمل بشكل صحيح مع الروابط)
         async function loadReportForEditing(docId) {
             try {
                 const reportRef = doc(db, `/artifacts/${appId}/public/data/strategies`, docId);
@@ -270,7 +294,6 @@
                     document.getElementById('lesson').value = data.lesson || '';
                     document.getElementById('objectives').value = data.objectives || '';
                     
-                    // 🔴 التعديل: تحميل بيانات "أخرى"
                     document.getElementById('teachingAidsOther').value = data.teachingAidsOther || '';
                     
                     if (data.teachingAids) {
@@ -300,40 +323,60 @@
             }
         }
 
+        // ⬇️ 4. التعديل الرابع: تغيير منطق الحفظ بالكامل ⬇️
         saveButton.addEventListener('click', async () => {
             saveButton.disabled = true;
             saveButton.textContent = 'جاري الحفظ...';
 
-            const getBase64FromInput = async (inputId) => {
+            // دالة جديدة لرفع الصورة (بدلاً من Base64)
+            const handleImageUpload = async (inputId) => {
                 const input = document.getElementById(inputId);
-                if (input.files && input.files[0]) {
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.onerror = (error) => {
-                            console.error('FileReader error:', error);
-                            reject(new Error('فشل في قراءة الملف: ' + error.toString()));
-                        };
-                        try {
-                            reader.readAsDataURL(input.files[0]);
-                        } catch (e) {
-                            console.error('readAsDataURL error:', e);
-                            reject(e);
-                        }
-                    });
+                const file = input.files[0]; // الملف المختار
+
+                // الحالة 1: إذا اختار المعلم ملف جديد
+                if (file) {
+                    try {
+                        // إظهار رسالة "جاري رفع الصورة..."
+                        saveButton.textContent = `جاري رفع الصورة (${input.id})...`;
+                        
+                        // إنشاء اسم فريد للملف
+                        const fileName = `strategies/${Date.now()}-${file.name}`;
+                        const storageRef = ref(storage, fileName);
+
+                        // رفع الملف (وليس Base64)
+                        const uploadTask = await uploadBytesResumable(storageRef, file);
+                        
+                        // الحصول على رابط التحميل
+                        const downloadURL = await getDownloadURL(uploadTask.ref);
+                        return downloadURL;
+                    } catch (error) {
+                        console.error("Error uploading image: ", error);
+                        throw new Error("حدث خطأ أثناء رفع الصورة: " + error.message);
+                    }
                 }
-                if(editMode) {
+
+                // الحالة 2: في وضع التعديل، ولم يختار ملف جديد
+                if (editMode) {
                     const preview = document.getElementById(inputId.replace('input', 'preview'));
-                    if(preview && preview.src && !preview.src.startsWith('blob:')) {
+                    // إذا كان هناك رابط قديم في المعاينة، احتفظ به
+                    if (preview && preview.src && !preview.src.startsWith('blob:')) {
                         return preview.src;
                     }
                 }
+                
+                // الحالة 3: لا يوجد ملف جديد ولا قديم
                 return null;
             };
             
             const selectedAids = Array.from(document.querySelectorAll('input[name="teachingAids"]:checked')).map(cb => cb.value);
 
             try {
+                // الآن "image1" و "image2" ستحتوي على "روابط" (URLs) بدلاً من بيانات Base64
+                const image1_url = await handleImageUpload('image-input-1');
+                const image2_url = await handleImageUpload('image-input-2');
+
+                saveButton.textContent = 'جاري حفظ بيانات التقرير...';
+                
                 const reportData = {
                     teacherName: document.getElementById('teacherName').value,
                     principalName: document.getElementById('principalName').value,
@@ -345,11 +388,10 @@
                     studentCount: document.getElementById('studentCount').value,
                     lesson: document.getElementById('lesson').value,
                     teachingAids: selectedAids,
-                    // 🔴 التعديل: حفظ بيانات "أخرى"
                     teachingAidsOther: document.getElementById('teachingAidsOther').value,
                     objectives: document.getElementById('objectives').value,
-                    image1: await getBase64FromInput('image-input-1'),
-                    image2: await getBase64FromInput('image-input-2'),
+                    image1: image1_url, // <-- حفظ الرابط
+                    image2: image2_url  // <-- حفظ الرابط
                 };
 
                 if (editMode && editDocId) {
