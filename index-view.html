@@ -78,6 +78,36 @@
         .printable-content footer .footer-title { font-size: 1.1rem; }
         .printable-content footer .footer-name { font-size: 1.4rem; }
 
+        /* === (بداية كود التصاميم الجديدة) === */
+        
+        /* تصميم الخلفية المتموجة */
+        .printable-content.design-wave {
+            /* SVG بسيط ومضمن لإنشاء تموج في الأسفل بلون أخضر فاتح جداً */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f0fdfa' fill-opacity='0.8' d='M0,192L80,176C160,160,320,128,480,133.3C640,139,800,181,960,186.7C1120,192,1280,160,1360,144L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: 100% 40%; /* تغطية 40% من أسفل الصفحة */
+        }
+
+        /* تصميم التدرج الرمادي الرسمي */
+        .printable-content.design-formal {
+            background-color: #f8f9fa; /* خلفية رمادية فاتحة جداً */
+        }
+        .printable-content.design-formal .form-label-cell {
+            background-color: #e9ecef; /* لون أغمق لخلايا العناوين */
+        }
+
+        /* تصميم التدرج الأخضر الناعم */
+        .printable-content.design-gradient {
+             /* تدرج خطي من الأبيض إلى الأخضر الفاتح جداً */
+            background: linear-gradient(to bottom, #ffffff 0%, #f0fdfa 100%);
+        }
+        .printable-content.design-gradient .form-label-cell {
+            background-color: #e6f7f4; /* لون أخضر فاتح جداً لخلايا العناوين */
+        }
+        
+        /* === (نهاية كود التصاميم الجديدة) === */
+
         @media print { /* (إعدادات الطباعة تبقى كما هي) */ }
     </style>
 </head>
@@ -98,7 +128,7 @@
                     <input type="file" id="vision-upload" class="hidden" accept="image/png">
                 </div>
             </div>
-            <div class="p-4 bg-gray-100 rounded-lg mb-4 flex justify-start items-center gap-4 no-print">
+            <div class="p-4 bg-gray-100 rounded-lg mb-4 flex justify-start items-center gap-4 no-print flex-wrap">
                 <label for="font-select" class="font-semibold text-gray-700">اختر خط التقرير:</label>
                 <select id="font-select" class="p-2 border rounded-md" style="font-family: 'Tajawal', sans-serif;">
                     <option value="'Tajawal', sans-serif" style="font-family: 'Tajawal', sans-serif;">أساسي (Tajawal)</option>
@@ -112,7 +142,15 @@
                     <option value="19px">كبير</option>
                     <option value="21px">كبير جداً</option>
                 </select>
-            </div>
+                
+                <label for="design-select" class="font-semibold text-gray-700 ml-4">اختر التصميم:</label>
+                <select id="design-select" class="p-2 border rounded-md">
+                    <option value="design-default">افتراضي (أبيض)</option>
+                    <option value="design-wave">خلفية متموجة (أخضر)</option>
+                    <option value="design-formal">تدرج رمادي (رسمي)</option>
+                    <option value="design-gradient">تدرج ناعم (أخضر)</option>
+                </select>
+                </div>
             
              <div id="reports-list" class="space-y-1">
                 <p class="text-gray-500 text-center p-4">جاري تحميل التقارير...</p>
@@ -222,6 +260,21 @@
                 });
             }
         });
+
+        // === (بداية كود مستمع التصميم) ===
+        document.getElementById('design-select').addEventListener('change', (event) => {
+            const reportContent = document.querySelector("#report-display .printable-content");
+            if (reportContent) {
+                // إزالة جميع كلاسات التصميم أولاً
+                reportContent.classList.remove('design-wave', 'design-formal', 'design-gradient');
+                
+                // إضافة الكلاس المختار (إذا لم يكن الافتراضي)
+                if (event.target.value !== 'design-default') {
+                    reportContent.classList.add(event.target.value);
+                }
+            }
+        });
+        // === (نهاية كود مستمع التصميم) ===
 
 
         const reportsList = document.getElementById('reports-list');
@@ -417,12 +470,15 @@
                 ? `<div class="text-blue-800 font-semibold">${data.objectives.split('\n').filter(line => line.trim() !== '').map(obj => `<p class="mb-1">${obj}</p>`).join('')}</div>`
                 : '<span class="text-blue-800 font-semibold">لا يوجد</span>';
             
+            // === (بداية التعديل لتطبيق التصميم المختار) ===
             const selectedFont = document.getElementById('font-select').value;
             const selectedSize = document.getElementById('font-size-select').value;
-
+            const selectedDesign = document.getElementById('design-select').value; // اقرأ التصميم المختار
+            const designClass = selectedDesign !== 'design-default' ? selectedDesign : ''; // جهز الكلاس
+            
             reportDisplay.innerHTML = `
-                <div class="printable-content page-container" style="font-family: ${selectedFont};">
-                    <header class="bg-[#006b5a] text-white p-4 print-bg-green">
+                <div class="printable-content page-container ${designClass}" style="font-family: ${selectedFont};">
+            <header class="bg-[#006b5a] text-white p-4 print-bg-green">
                         <div class="max-w-4xl mx-auto flex justify-between items-center">
                             
                             <div class="w-1/3 text-right">
