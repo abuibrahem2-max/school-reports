@@ -82,33 +82,31 @@
         
         /* تصميم الخلفية المتموجة */
         .printable-content.design-wave {
-            /* SVG بسيط ومضمن لإنشاء تموج في الأسفل بلون أخضر فاتح جداً */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f0fdfa' fill-opacity='0.8' d='M0,192L80,176C160,160,320,128,480,133.3C640,139,800,181,960,186.7C1120,192,1280,160,1360,144L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: bottom;
-            background-size: 100% 40%; /* تغطية 40% من أسفل الصفحة */
+            background-size: 100% 40%; 
         }
 
         /* تصميم التدرج الرمادي الرسمي */
         .printable-content.design-formal {
-            background-color: #f8f9fa; /* خلفية رمادية فاتحة جداً */
+            background-color: #f8f9fa; 
         }
         .printable-content.design-formal .form-label-cell {
-            background-color: #e9ecef; /* لون أغمق لخلايا العناوين */
+            background-color: #e9ecef; 
         }
 
         /* تصميم التدرج الأخضر الناعم */
         .printable-content.design-gradient {
-             /* تدرج خطي من الأبيض إلى الأخضر الفاتح جداً */
             background: linear-gradient(to bottom, #ffffff 0%, #f0fdfa 100%);
         }
         .printable-content.design-gradient .form-label-cell {
-            background-color: #e6f7f4; /* لون أخضر فاتح جداً لخلايا العناوين */
+            background-color: #e6f7f4; 
         }
         
         /* === (نهاية كود التصاميم الجديدة) === */
 
-        @media print { /* (إعدادات الطباعة تبقى كما هي) */ }
+        @media print { /* إعدادات الطباعة */ }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -166,9 +164,7 @@
     <div id="report-actions" class="hidden max-w-4xl mx-auto p-4 text-center no-print bg-white flex justify-center items-center gap-4" style="margin-top: -2rem; position: relative; z-index: 10; border-radius: 0 0 0.5rem 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
         <button onclick="downloadPdf()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">تحميل PDF</button>
     </div>
-
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, onSnapshot, orderBy, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -261,20 +257,15 @@
             }
         });
 
-        // === (بداية كود مستمع التصميم) ===
         document.getElementById('design-select').addEventListener('change', (event) => {
             const reportContent = document.querySelector("#report-display .printable-content");
             if (reportContent) {
-                // إزالة جميع كلاسات التصميم أولاً
                 reportContent.classList.remove('design-wave', 'design-formal', 'design-gradient');
-                
-                // إضافة الكلاس المختار (إذا لم يكن الافتراضي)
                 if (event.target.value !== 'design-default') {
                     reportContent.classList.add(event.target.value);
                 }
             }
         });
-        // === (نهاية كود مستمع التصميم) ===
 
 
         const reportsList = document.getElementById('reports-list');
@@ -361,6 +352,7 @@
             }
         }
         
+        // === دالة الطباعة الجديدة المعدلة لتقليل الحجم ===
         window.downloadPdf = async function() {
             const reportContent = document.querySelector("#report-display .printable-content");
             const reportContainer = document.getElementById('report-display');
@@ -386,13 +378,14 @@
             await new Promise(resolve => setTimeout(resolve, 50));
 
             try {
+                // استخدام JPEG وجودة 75% لتقليل الحجم بشكل كبير
                 const canvas = await html2canvas(reportContent, { 
-                    scale: 2,
+                    scale: 2, 
                     useCORS: true,
                     backgroundColor: '#ffffff'
                 });
                 
-                const imgData = canvas.toDataURL('image/png');
+                const imgData = canvas.toDataURL('image/jpeg', 0.75);
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -404,13 +397,13 @@
                 let pageHeight = pdfHeight;
                 let position = 0;
 
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, calculatedHeight);
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, calculatedHeight, undefined, 'FAST');
                 let heightLeft = calculatedHeight - pageHeight;
 
                 while (heightLeft > 0) {
                     position = position - pdfHeight;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, calculatedHeight);
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, calculatedHeight, undefined, 'FAST');
                     heightLeft -= pageHeight;
                 }
 
@@ -470,11 +463,10 @@
                 ? `<div class="text-blue-800 font-semibold">${data.objectives.split('\n').filter(line => line.trim() !== '').map(obj => `<p class="mb-1">${obj}</p>`).join('')}</div>`
                 : '<span class="text-blue-800 font-semibold">لا يوجد</span>';
             
-            // === (بداية التعديل لتطبيق التصميم المختار) ===
             const selectedFont = document.getElementById('font-select').value;
             const selectedSize = document.getElementById('font-size-select').value;
-            const selectedDesign = document.getElementById('design-select').value; // اقرأ التصميم المختار
-            const designClass = selectedDesign !== 'design-default' ? selectedDesign : ''; // جهز الكلاس
+            const selectedDesign = document.getElementById('design-select').value;
+            const designClass = selectedDesign !== 'design-default' ? selectedDesign : '';
             
             reportDisplay.innerHTML = `
                 <div class="printable-content page-container ${designClass}" style="font-family: ${selectedFont};">
@@ -567,7 +559,6 @@
             const visionPreview = document.getElementById('vision-preview');
             const visionPlaceholder = document.getElementById('vision-placeholder');
             
-            // نعيد تحميل الصور من جديد عند عرض التقرير
             const originalLogoSrc = document.getElementById('logo-upload').files.length > 0 ? URL.createObjectURL(document.getElementById('logo-upload').files[0]) : "";
             const originalVisionSrc = document.getElementById('vision-upload').files.length > 0 ? URL.createObjectURL(document.getElementById('vision-upload').files[0]) : "";
 
