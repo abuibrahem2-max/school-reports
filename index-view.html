@@ -78,35 +78,19 @@
         .printable-content footer .footer-title { font-size: 1.1rem; }
         .printable-content footer .footer-name { font-size: 1.4rem; }
 
-        /* === (بداية كود التصاميم الجديدة) === */
-        
-        /* تصميم الخلفية المتموجة */
+        /* === Styles for Designs === */
         .printable-content.design-wave {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f0fdfa' fill-opacity='0.8' d='M0,192L80,176C160,160,320,128,480,133.3C640,139,800,181,960,186.7C1120,192,1280,160,1360,144L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: bottom;
             background-size: 100% 40%; 
         }
-
-        /* تصميم التدرج الرمادي الرسمي */
-        .printable-content.design-formal {
-            background-color: #f8f9fa; 
-        }
-        .printable-content.design-formal .form-label-cell {
-            background-color: #e9ecef; 
-        }
-
-        /* تصميم التدرج الأخضر الناعم */
-        .printable-content.design-gradient {
-            background: linear-gradient(to bottom, #ffffff 0%, #f0fdfa 100%);
-        }
-        .printable-content.design-gradient .form-label-cell {
-            background-color: #e6f7f4; 
-        }
+        .printable-content.design-formal { background-color: #f8f9fa; }
+        .printable-content.design-formal .form-label-cell { background-color: #e9ecef; }
+        .printable-content.design-gradient { background: linear-gradient(to bottom, #ffffff 0%, #f0fdfa 100%); }
+        .printable-content.design-gradient .form-label-cell { background-color: #e6f7f4; }
         
-        /* === (نهاية كود التصاميم الجديدة) === */
-
-        @media print { /* إعدادات الطباعة */ }
+        @media print { }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -267,7 +251,6 @@
             }
         });
 
-
         const reportsList = document.getElementById('reports-list');
         const reportDisplay = document.getElementById('report-display');
         const reportActions = document.getElementById('report-actions');
@@ -330,29 +313,23 @@
         
         window.deleteReport = async function(event, docId) {
             event.stopPropagation(); 
-
-            if (!confirm("هل أنت متأكد من حذف هذا التقرير نهائياً؟")) {
-                return;
-            }
-
+            if (!confirm("هل أنت متأكد من حذف هذا التقرير نهائياً؟")) return;
             try {
                 const reportRef = doc(db, `/artifacts/${appId}/public/data/strategies`, docId);
                 await deleteDoc(reportRef);
-                
                 if (currentReportData && currentReportData.id === docId) {
                     reportDisplay.innerHTML = '';
                     reportDisplay.classList.add('hidden');
                     reportActions.classList.add('hidden');
                     currentReportData = null;
                 }
-                
             } catch (error) {
                 console.error("Error deleting report: ", error);
                 alert("حدث خطأ أثناء حذف التقرير.");
             }
         }
         
-        // === دالة الطباعة الجديدة المعدلة لتقليل الحجم ===
+        // === دالة التحميل المحسنة (حل مشكلة الجوال + ضغط الحجم) ===
         window.downloadPdf = async function() {
             const reportContent = document.querySelector("#report-display .printable-content");
             const reportContainer = document.getElementById('report-display');
@@ -373,19 +350,40 @@
             const teacherName = currentReportData.teacherName || 'معلم';
             const filename = `${programName} - ${teacherName}.pdf`;
 
+            // حفظ التنسيقات الأصلية
+            const originalStyle = reportContent.style.cssText;
+            const originalParentStyle = reportContainer.style.cssText;
+
+            // إجبار التقرير على أخذ وضعية الكمبيوتر (1000px)
             reportContainer.classList.remove('page-container');
             reportContainer.classList.add('pdf-render-mode');
-            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            reportContent.style.width = "1000px";
+            reportContent.style.minWidth = "1000px";
+            reportContent.style.maxWidth = "1000px";
+            
+            const btn = document.querySelector('#report-actions button');
+            const oldBtnText = btn.innerText;
+            btn.innerText = "جاري المعالجة...";
+            btn.disabled = true;
+
+            await new Promise(resolve => setTimeout(resolve, 100)); 
 
             try {
-                // استخدام JPEG وجودة 75% لتقليل الحجم بشكل كبير
+                // إعدادات html2canvas لمحاكاة شاشة واسعة
                 const canvas = await html2canvas(reportContent, { 
                     scale: 2, 
                     useCORS: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    windowWidth: 1200, // خداع المكتبة بأن الشاشة عريضة
+                    width: 1000,
+                    x: 0,
+                    scrollY: 0
                 });
                 
+                // استخدام JPEG وجودة 0.75 لضغط الحجم
                 const imgData = canvas.toDataURL('image/jpeg', 0.75);
+                
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -412,8 +410,14 @@
                 console.error("خطأ في إنشاء PDF:", error);
                 alert("حدث خطأ أثناء إنشاء ملف PDF.");
             } finally {
+                // استعادة التنسيقات الأصلية
+                reportContent.style.cssText = originalStyle;
+                reportContainer.style.cssText = originalParentStyle;
                 reportContainer.classList.add('page-container');
                 reportContainer.classList.remove('pdf-render-mode');
+                
+                btn.innerText = oldBtnText;
+                btn.disabled = false;
             }
         }
 
@@ -441,9 +445,7 @@
             
             let aidsItems = data.teachingAids && data.teachingAids.length > 0
                 ? data.teachingAids.map(aid => {
-                    if (aid === "أخرى" && (!data.teachingAidsOther || data.teachingAidsOther.trim() === "")) {
-                        return null; 
-                    }
+                    if (aid === "أخرى" && (!data.teachingAidsOther || data.teachingAidsOther.trim() === "")) return null; 
                     if (aid === "أخرى" && data.teachingAidsOther && data.teachingAidsOther.trim() !== "") {
                         return `<li class="list-disc mr-4">أخرى: ${data.teachingAidsOther}</li>`;
                     }
@@ -472,32 +474,25 @@
                 <div class="printable-content page-container ${designClass}" style="font-family: ${selectedFont};">
             <header class="bg-[#006b5a] text-white p-4 print-bg-green">
                         <div class="max-w-4xl mx-auto flex justify-between items-center">
-                            
                             <div class="w-1/3 text-right">
                                 <img id="logo-preview" src="" alt="شعار الوزارة" class="h-20 w-32 mx-auto hidden object-contain">
                                 <div id="logo-placeholder" class="h-20 w-32 border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-400 mx-auto">مكان شعار الوزارة</div>
                             </div>
-                            
                             <div class="w-1/3 text-center text-sm leading-tight">
                                 <p class="font-bold text-base">المملكة العربية السعودية</p>
                                 <p class="font-bold text-base">وزارة التعليم</p>
                                 <p class="font-bold text-lg text-yellow-300">الإدارة العامة للتعليم بمنطقة عسير</p>
                                 <p class="text-sm">ابتدائية ومتوسطة الراشدون بالمربع</p>
                             </div>
-
                             <div class="w-1/3 text-left">
                                 <img id="vision-preview" src="" alt="شعار الرؤية" class="h-20 w-32 mx-auto hidden object-contain">
                                 <div id="vision-placeholder" class="h-20 w-32 border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-400 mx-auto">مكان شعار الرؤية</div>
                             </div>
-
                         </div>
                     </header>
-                    
                     <h1 class="form-title mt-4 mb-4 mx-4">تقرير تنفيذ استراتجية تدريس</h1>
-                    
                     <main class="px-8 py-4">
                         <div class="form-grid">
-                            
                             <div class="form-label-cell" style="font-size: ${selectedSize};">الاستراتيجية:</div>
                             <div class="form-data-cell" style="font-size: ${selectedSize};"><span class="text-red-800 font-semibold">${data.strategyName || ''}</span></div>
                             <div class="form-label-cell" style="font-size: ${selectedSize};">المادة:</div>
@@ -516,7 +511,6 @@
                             <div class="form-data-cell data-span-3" style="font-size: ${selectedSize};">${aidsList}</div>
                             <div class="form-label-cell label-span-1" style="font-size: ${selectedSize};">الأهداف:</div>
                             <div class="form-data-cell data-span-3" style="font-size: ${selectedSize};">${objectivesList}</div>
-
                             <div class="form-label-cell label-span-1" style="font-size: ${selectedSize};">شواهد التنفيذ:</div>
                             <div class="form-data-cell data-span-3">
                                 <div class="w-full flex gap-4">
@@ -534,7 +528,6 @@
                             </div>
                         </div>
                     </main>
-
                     <footer class="flex justify-between items-start pt-10 mt-10 border-t px-10 pb-10">
                         <div class="text-center">
                             <p class="footer-title text-gray-600 text-center" style="font-size: calc(${selectedSize} - 2px);">المعلم المنفذ</p>
@@ -545,7 +538,6 @@
                              <p class="footer-name font-bold text-center" style="font-size: calc(${selectedSize} + 4px);">${data.principalName || 'اسم المدير'}</p>
                         </div>
                     </footer>
-                    
                     <footer class="bg-[#006b5a] p-4 print-bg-green">
                         <div class="text-center">
                             <p class="text-white text-sm font-bold">www.moe.gov.sa</p>
